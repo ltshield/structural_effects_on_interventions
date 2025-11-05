@@ -6,8 +6,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 """ Perhaps the number of agents needs to vary? Or fix this by doing proportions rather than num of edges """
+""" TODO: go in and make range of edges to loop through agnostic of number of agents (ie works for 16 agents or 100 agents) """
+
 # GLOBAL PARAMS
-NUM_ROUNDS = 100
+# Originally 100 rounds, is there a significant difference in lowering it?
+NUM_ROUNDS = 50
 NUM_AGENTS = 16
 
 def check_if_rows_are_zero(matrix):
@@ -53,7 +56,7 @@ total_final_ginis = []
 total_rounds_to_plot = [i for i in range(0, 120)]
 inflection_points_for_diff_seeds = []
 # Ensures uniqueness in seed integers
-seeds = random.sample(range(1, 401), 50)
+seeds = random.sample(range(1, 401), 100)
 
 # For Complete Graph
 for seed in seeds:
@@ -102,15 +105,25 @@ plt.show()
 df = pd.DataFrame(inflection_points_for_diff_seeds)
 print(df.describe())
 
+print(f"P(Edges That Exist/Edges That Could Exist) = {1 - (np.mean(inflection_points_for_diff_seeds)/120)}")
 """
-OUTPUT:
 
-count   20.000000
-mean   104.387375
-std      0.333049
-min    104.078194
-25%    104.191778
-50%    104.296842
-75%    104.375167
-max    105.459581
+OUTPUT FOR 100 SEEDS/50 ROUNDS:
+
+count  100.000000
+mean   104.286016
+std      0.164859
+min    103.677164
+25%    104.292614
+50%    104.350052
+75%    104.381579
+max    104.426312
+
+P(Edges That Exist/Edges That Could Exist) = 0.13094986666666664
+
+Therefore, we see that, in an initially complete graph, the inflection point occurs when only about 13% of the total edges that could exist
+in the network exist. In other words, once 87% of the total edges that could exist are missing, the network will be unable to converge.
+
+ACTUALLY, we are more interested in the onset point, where it first leaves 0 and therefore is not converging than the inflection point.
+(Unless are they the same?)
 """
