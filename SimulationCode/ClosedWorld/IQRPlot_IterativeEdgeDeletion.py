@@ -7,13 +7,16 @@ import matplotlib.pyplot as plt
 
 # Globals
 SEED = 42
-NUM_AGENTS = 16
+NUM_AGENTS = 40
 NUM_ROUNDS = 100
 RUNS_PER_DELETION = 100          # repeat per deletion count to average/IQR
 DELETE_BIAS = "uniform"          # "uniform" or "degree"
 
 random.seed(SEED)
 np.random.seed(SEED)
+
+FRAC_OF_TOTAL_EDGES = 0.25
+APPROX_NUM_EDGES = (NUM_AGENTS)*(NUM_AGENTS-1)/2
 
 # Gini Coefficient Calculator
 def gini(x: np.ndarray) -> float:
@@ -135,7 +138,7 @@ def run_experiment(
 
     return deletion_results, total_edges
 
-def IQR_PlotForlast60(deletion_results: dict, total_edges: int, window_size: int = 10):
+def IQR_PlotForlast60(deletion_results: dict, total_edges: int, window_size: int = int(FRAC_OF_TOTAL_EDGES*(APPROX_NUM_EDGES)/6)):
     """
     For the last 60 deletions (or fewer), group by 10 (e.g., 110–119, 120–129, ...),
     and, for each group, plot mean (across deletions) ± IQR of the per-round mean
@@ -153,7 +156,7 @@ def IQR_PlotForlast60(deletion_results: dict, total_edges: int, window_size: int
     rounds = np.arange(num_rounds)
 
     # --- choose last 60 deletions (or less) ---
-    last_n = min(60, total_edges)
+    last_n = min(int(FRAC_OF_TOTAL_EDGES*APPROX_NUM_EDGES), total_edges)
     start_d = max(1, total_edges - last_n + 1)
     relevant_ds = list(range(start_d, total_edges + 1))
 
