@@ -4,9 +4,14 @@ import matplotlib.pyplot as plt
 import random
 from scipy.optimize import curve_fit
 
+"""
+Future work, normalize curve and scatter plot to 0-1 (% of deletions so we can compare network types and behaviors)
+maybe go off of first point off of the 0 gini coefficient plane? or past a certain threshold value? (average?)
+inflection point might not be the most representative point for this problem.
+"""
 NUM_ROUNDS = 150
 
-ITERATIONS = 1
+ITERATIONS = 10
 
 # # Complete
 # COMP_NUM_AGENTS = 16
@@ -124,9 +129,10 @@ def gatherParams(graph_type):
         # un-biased token to first agent
         # dist[0] = 1
         # un-biased token to random agent
-        dist[random.randint(0,len(dist)-1)] = 1
+        # dist[random.randint(0,len(dist)-1)] = 1
         # biased token to highest-degree agent
-
+        highest_node = max(G.degree, key=lambda x: x[1])[0]
+        dist[highest_node] = 1
         # biased token to lowest-degree agent?
         # biased according to being in the Strongest Connected Component?
         # biased according to neighborhood connectedness?
@@ -139,11 +145,12 @@ def gatherParams(graph_type):
             final_gini, ginis = run_simulation(G, dist)
             final_ginis.append(final_gini)
         total_final_ginis.append(final_ginis)
-        axes[0].scatter([i for i in range(0,total_edges)], final_ginis, alpha=0.3, s=30, color=color)
+        axes[0].scatter([i/total_edges for i in range(0,total_edges)], final_ginis, alpha=0.3, s=30, color=color)
 
         column_means_of_ginis = np.mean(total_final_ginis, axis=0)
-
+        normalized_rounds = [i/total_edges for i in range(0, total_edges)]
         x = np.asarray(total_rounds)
+        x = np.asarray(normalized_rounds)
         y = np.asarray(column_means_of_ginis)
 
         # --- data-driven initial guesses ---
@@ -181,7 +188,7 @@ fig, axes = plt.subplots(1,2, figsize=(10,8))
 
 comp_total_params, initial_comp_edges = gatherParams("COMP")
 A_COMP, K_COMP, k_COMP, x0_COMP = np.mean(comp_total_params, axis=0)
-xx = np.linspace(0, initial_comp_edges, 500)
+xx = np.linspace(0, 1, 500)
 yyFourParams = logistic4(xx, *np.mean(comp_total_params, axis=0))
 axes[0].plot(xx, yyFourParams, label='COMP SIGMOID', linewidth=2, color='lightgreen')
 
@@ -196,7 +203,7 @@ axes[0].scatter(
 
 rand_total_params, initial_rand_edges = gatherParams("RANDOM")
 A_RAND, K_RAND, k_RAND, x0_RAND = np.mean(rand_total_params, axis=0)
-xx = np.linspace(0, initial_rand_edges, 500)
+xx = np.linspace(0, 1, 500)
 yyFourParams = logistic4(xx, *np.mean(rand_total_params, axis=0))
 axes[0].plot(xx, yyFourParams, label='RAND SIGMOID', linewidth=2, color='violet')
 
@@ -211,7 +218,7 @@ axes[0].scatter(
 
 sw_total_params, initial_sw_edges = gatherParams("SW")
 A_SW, K_SW, k_SW, x0_SW = np.mean(sw_total_params, axis=0)
-xx = np.linspace(0, initial_sw_edges, 500)
+xx = np.linspace(0, 1, 500)
 yyFourParams = logistic4(xx, *np.mean(sw_total_params, axis=0))
 axes[0].plot(xx, yyFourParams, label='SW SIGMOID', linewidth=2, color='lightblue')
 
@@ -226,7 +233,7 @@ axes[0].scatter(
 
 sf_total_params, initial_sf_edges = gatherParams("SF")
 A_SF, K_SF, k_SF, x0_SF = np.mean(sf_total_params, axis=0)
-xx = np.linspace(0, initial_sf_edges, 500)
+xx = np.linspace(0, 1, 500)
 yyFourParams = logistic4(xx, *np.mean(sf_total_params, axis=0))
 axes[0].plot(xx, yyFourParams, label='SF SIGMOID', linewidth=2, color='moccasin')
 
@@ -242,10 +249,10 @@ axes[0].scatter(
 axes[0].legend()
 
 # cf = Critical Fraction of Edges Deleted
-cf_comp = x0_COMP/initial_comp_edges
-cf_rand = x0_RAND/initial_rand_edges
-cf_sw = x0_SW/initial_sw_edges
-cf_sf = x0_SF/initial_sf_edges
+cf_comp = x0_COMP
+cf_rand = x0_RAND
+cf_sw = x0_SW
+cf_sf = x0_SF
 
 # Stats
 np_comp_total_params = np.array(comp_total_params)
@@ -270,7 +277,7 @@ sw_x0_iqr = x0_q3 - x0_q1
 print(f" SW IQR    = {sw_x0_iqr:.3f} (Q1={x0_q1:.3f}, Q3={x0_q3:.3f})")
 
 np_sf_total_params = np.array(sf_total_params)
-x0_values = np_sf_total_params[:, 3]/initial_comp_edges
+x0_values = np_sf_total_params[:, 3]
 x0_q1 = np.percentile(x0_values, 25)
 x0_q3 = np.percentile(x0_values, 75)
 sf_x0_iqr = x0_q3 - x0_q1
@@ -287,7 +294,7 @@ print("-------------------------------------------------------------------------
 categories = ["RAND", "SW", "SF", "COMP"]
 axes[1].barh(categories, [cf_rand, cf_sw, cf_sf, cf_comp], color="lightblue")
 axes[0].set_yticks([0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0])
-axes[0].set_xlabel("Number of Edges Deleted")
+axes[0].set_xlabel("Fraction of Edges Deleted")
 axes[0].set_ylabel("Gini Coefficient")
 axes[0].set_title("Final Gini After Edge Deletions")
 axes[1].set_xticks([0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0])
@@ -317,4 +324,22 @@ Scale-free: 68.42% +- (21.45%) Deleted
 -------------------------------------------------------------------------------
 
 (Should I get rid of large outliers? Or are they important?)
+
+NORMALIZED RANDOM NODE
+Critical Percentage of Edges Deleted/Initial Edges for Sigmoid Inflection Point
+-------------------------------------------------------------------------------
+Complete: 95.42% +- (0.0%) Deleted
+Random: 78.15% +- (0.0%) Deleted
+Small-world: 69.5% +- (0.01%) Deleted
+Scale-free: 69.16% +- (6.08%) Deleted
+-------------------------------------------------------------------------------
+
+NORMALIZED HIGHEST DEGREE NODE
+Critical Percentage of Edges Deleted/Initial Edges for Sigmoid Inflection Point
+-------------------------------------------------------------------------------
+Complete: 94.77% +- (0.0%) Deleted
+Random: 82.72% +- (0.0%) Deleted
+Small-world: 71.19% +- (0.0%) Deleted
+Scale-free: 75.17% +- (1.22%) Deleted
+-------------------------------------------------------------------------------
 """
