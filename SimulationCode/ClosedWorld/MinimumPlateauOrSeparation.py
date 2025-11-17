@@ -529,4 +529,39 @@ Graph type: complete, delete_bias: random
   λ2 plateau density ≈ 0.105
   k-core plateau density ≈ 0.005
 
+ ALL RANDOM
+Graph type: erdos_renyi, delete_bias: random 
+Gini min-achievable *lift-off* density ≈ 0.960 
+λ2 plateau density ≈ 0.754 
+k-core plateau density ≈ 0.688 
+Graph type: watts_strogatz, delete_bias: random 
+Gini min-achievable *lift-off* density ≈ 0.986 
+λ2 plateau density ≈ 0.922 
+k-core plateau density ≈ 0.847 
+Graph type: barabasi_albert, delete_bias: random 
+Gini min-achievable *lift-off* density ≈ 0.941 
+λ2 plateau density ≈ 0.981 
+k-core plateau density ≈ 0.904 
+Graph type: complete, delete_bias: random 
+Gini min-achievable *lift-off* density ≈ 0.968 
+λ2 plateau density ≈ 0.105 
+k-core plateau density ≈ 0.005 
+
+ ALL DEGREE
+Graph type: erdos_renyi, delete_bias: degree 
+Gini min-achievable *lift-off* density ≈ 0.963 
+λ2 plateau density ≈ 0.768 
+k-core plateau density ≈ 0.688 
+Graph type: watts_strogatz, delete_bias: degree 
+Gini min-achievable *lift-off* density ≈ 0.991 
+λ2 plateau density ≈ 0.900 
+k-core plateau density ≈ 0.847 
+Graph type: barabasi_albert, delete_bias: degree 
+Gini min-achievable *lift-off* density ≈ 0.929 
+λ2 plateau density ≈ 0.969 
+k-core plateau density ≈ 0.904 
+Graph type: complete, delete_bias: degree 
+Gini min-achievable *lift-off* density ≈ 0.968 
+λ2 plateau density ≈ 0.137 
+k-core plateau density ≈ 0.005
 """

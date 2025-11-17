@@ -128,12 +128,18 @@ def gatherParams(graph_type):
         total_rounds = [i for i in range(total_edges)]
         # un-biased token to first agent
         # dist[0] = 1
+
         # un-biased token to random agent
         # dist[random.randint(0,len(dist)-1)] = 1
+
         # biased token to highest-degree agent
-        highest_node = max(G.degree, key=lambda x: x[1])[0]
-        dist[highest_node] = 1
+        # highest_node = max(G.degree, key=lambda x: x[1])[0]
+        # dist[highest_node] = 1
+
         # biased token to lowest-degree agent?
+        lowest_node = min(G.degree, key=lambda x: x[1])[0]
+        dist[lowest_node] = 1
+        
         # biased according to being in the Strongest Connected Component?
         # biased according to neighborhood connectedness?
 
